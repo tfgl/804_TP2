@@ -1,0 +1,9 @@
+.ccls-cache/
+Images/
+Makefile
+*.o
+tp-ig-2.dox
+tp2.tar.gz
+output.ppm
+ray-tracer
+.qmake.stash
