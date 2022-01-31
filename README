@@ -1,5 +1,5 @@
-fait:
-  3.1 - Intersection rayon / sphère
-
-en cours:
-  3.2 - Rendu minimal, intersection avec l'objet le plus proche sur le trajet du rayon.
+* avancement:
+  - [X] 3.1 - Intersection rayon / sphère
+  - [X] 3.2 - Rendu minimal, intersection avec l'objet le plus proche sur le trajet du rayon.
+  - [X] 3.2 - Rendu minimal, intersection avec l'objet le plus proche sur le trajet du rayon.
+  - [ ] 3.4 - Couleurs diffuses

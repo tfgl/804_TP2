@@ -78,18 +78,21 @@ namespace rt {
     }
     
     /// returns the closest object intersected by the given ray.
-    Real
-    rayIntersection( const Ray& ray,
+    Real rayIntersection( const Ray& ray,
                      GraphicalObject*& object, Point3& p )
     {
       Point3 q;
-      Real min;
-      for(auto& o: myObjects) {
+      Real min = 0;
+      bool contact = false;
+
+      for(const auto& o: myObjects) {
         if( o->rayIntersection(ray, q) < 0 ) {
-          Real dst = (q - ray.origin).dot(q - ray.origin);
+          Real dst = distance2(ray.origin, q);
+          ((dst < min) || !contact) ? contact = true, object = o, p = q, min = dst : 0;
         }
       }
-      return 1.0f;
+
+      return contact ? -1 : 1;
     }
 
   private:

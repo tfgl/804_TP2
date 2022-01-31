@@ -8,6 +8,7 @@
 
 #include "Color.h"
 #include "Image2D.h"
+#include "GraphicalObject.h"
 #include "Ray.h"
 
 /// Namespace RayTracer
@@ -128,7 +129,40 @@ namespace rt {
       Real ri = ptrScene->rayIntersection( ray, obj_i, p_i );
       // Nothing was intersected
       if ( ri >= 0.0f ) return Color( 0.0, 0.0, 0.0 ); // some background color
-      return Color( 1.0, 1.0, 1.0 );
+
+      const Material& m = obj_i->getMaterial(p_i);
+      result = m.diffuse
+             + m.ambient
+             + illumination(ray,obj_i,p_i);
+
+      return result;
+    }
+
+    Color illumination( const Ray& ray, GraphicalObject* obj, Point3 p )
+    {
+      const Material& m = obj->getMaterial(p);
+            Color     c = Color(0, 0, 0);
+
+      for(const auto& l: this->ptrScene->myLights) {
+          const Color        b = l->color(p);
+          const Vector3& l_dir = l->direction(p);
+          const Vector3& norm  = obj->getNormal(p);
+          const Vector3  w     = reflect(ray.direction, norm);
+                Real     ks    = w.dot(l_dir) / (l_dir.norm() * w.norm());
+                Real     kd    = norm.dot(l_dir) / (l_dir.norm() * norm.norm());
+                         kd    = (kd < 0) ? 0 : kd;
+                         ks    = (ks < 0) ? 0 : ks;
+
+
+          c += (kd * b * m.diffuse);
+            //+  (ks * l.color(p) * m.diffuse * ks);
+      }
+      return c;
+    }
+
+    /// Calcule le vecteur réfléchi à W selon la normale N.
+    Vector3 reflect( const Vector3& W, Vector3 N ) const {
+      return W - 2 * W.dot(N) * N;
     }
 
   };

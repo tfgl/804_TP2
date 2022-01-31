@@ -97,21 +97,17 @@ rt::Sphere::rayIntersection( const Ray& ray, Point3& p )
   Real wdc = w.dot(co),
        dst2 = co.dot(co) - wdc * wdc,
        r2 = this->radius * this->radius,
-       t1 = sqrt(r2 - dst2),
-       t2 = sqrt(r2 + dst2);
+       t1 = sqrt(dst2 - r2),
+       t2 = sqrt(dst2 + r2);
 
-  // pas d'intersection
-  if( dst2 > r2 )
-    return 1;
-
-  if( t1 < 0 && t2 < 0 )
+  if(( dst2 > r2 ) || (t1 < 0 && t2 < 0))
     return 1;
 
   if( t1 > 0 && t2 > 0 )
-    p = ray.origin - std::min(t1, t2) * w;
+    p = ray.origin - w * std::min(t1, t2);
 
   else
-    t1 < 0 ? p = ray.origin + t2 * w : p = ray.origin + t1 * w;
+    p = ray.origin + w * (t1 < 0 ? t2 : t1 );
 
   return -1.0f;
 }
