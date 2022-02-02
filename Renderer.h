@@ -10,6 +10,7 @@
 #include "Image2D.h"
 #include "GraphicalObject.h"
 #include "Ray.h"
+#include "Background.h"
 
 /// Namespace RayTracer
 namespace rt {
@@ -68,6 +69,8 @@ namespace rt {
 
     int myWidth;
     int myHeight;
+
+    Background* ptrBackground = new MyBackground();
 
     Renderer() : ptrScene( 0 ) {}
     Renderer( Scene& scene ) : ptrScene( &scene ) {}
@@ -128,14 +131,17 @@ namespace rt {
       // Look for intersection in this direction.
       Real ri = ptrScene->rayIntersection( ray, obj_i, p_i );
       // Nothing was intersected
-      if ( ri >= 0.0f ) return Color( 0.0, 0.0, 0.0 ); // some background color
+      if ( ri >= 0.0f ) return background( ray ); // some background color
 
       const Material& m = obj_i->getMaterial(p_i);
-      result = m.diffuse
-             + m.ambient
-             + illumination(ray,obj_i,p_i);
+      if( ray.depth > 0 && m.coef_reflexion ) {
+        const Vector3 dir  = reflect(ray.direction, obj_i->getNormal(p_i));
+        const Ray ray_refl = Ray(p_i + dir, dir, ray.depth - 1);
+        const Color c_refl = trace(ray_refl);
+        result += c_refl * m.specular * m.coef_reflexion;
+      }
 
-      return result;
+      return result + m.ambient + illumination(ray,obj_i,p_i);
     }
 
     Color illumination( const Ray& ray, GraphicalObject* obj, Point3 p )
@@ -144,25 +150,80 @@ namespace rt {
             Color     c = Color(0, 0, 0);
 
       for(const auto& l: this->ptrScene->myLights) {
-          const Color        b = l->color(p);
+          const Color&   b     = l->color(p);
           const Vector3& l_dir = l->direction(p);
           const Vector3& norm  = obj->getNormal(p);
-          const Vector3  w     = reflect(ray.direction, norm);
-                Real     ks    = w.dot(l_dir) / (l_dir.norm() * w.norm());
-                Real     kd    = norm.dot(l_dir) / (l_dir.norm() * norm.norm());
-                         kd    = (kd < 0) ? 0 : kd;
-                         ks    = (ks < 0) ? 0 : ks;
+          const Real     kd    = std::max( norm.dot(l_dir) / (l_dir.norm() * norm.norm()), 0.f );
+          const Vector3& w     = reflect(ray.direction, norm);
+          const Real     cosB  = std::max( w.dot(l_dir) / (l_dir.norm() * w.norm()), 0.f );
+          const Real     ks    = std::pow(cosB, m.shinyness);
 
+          c +=(kd * m.diffuse * b)
+            + (ks * m.specular * b);
 
-          c += (kd * b * m.diffuse);
-            //+  (ks * l.color(p) * m.diffuse * ks);
+          c = c * shadow(Ray(p, l_dir), b);
       }
       return c;
     }
 
     /// Calcule le vecteur réfléchi à W selon la normale N.
-    Vector3 reflect( const Vector3& W, Vector3 N ) const {
-      return W - 2 * W.dot(N) * N;
+    Vector3 reflect( const Vector3& W, Vector3 N ) const
+    { return W -2 * W.dot(N) * N; }
+
+    /// Calcule la couleur de la lumière (donnée par light_color) dans la
+    /// direction donnée par le rayon. Si aucun objet n'est traversé,
+    /// retourne light_color, sinon si un des objets traversés est opaque,
+    /// retourne du noir, et enfin si les objets traversés sont
+    /// transparents, attenue la couleur.
+    Color shadow( const Ray& ray, Color light_color )
+    {
+      Point3 p = ray.origin, q;
+      GraphicalObject* obj;
+
+      while( light_color.max() > 0.003f ) {
+        p += ray.direction * 0.003f;
+        Ray r = Ray(p, ray.direction, ray.depth);
+
+        if( ptrScene->rayIntersection(r, obj, q) >= 0)
+          break;
+
+        Material m = obj->getMaterial(p);
+        light_color = light_color * m.diffuse * m.coef_refraction;
+        p = q;
+      }
+      return light_color;
+    }
+
+    Ray refractionRay( const Ray& aRay, const Point3& p, Vector3 N, const Material& m )
+    {
+      const Vector3 V = aRay.direction;
+      const Real c = -(N.dot(V));
+      const Real r = (c < 0) ? m.in_refractive_index / m.out_refractive_index
+                             : m.out_refractive_index / m.in_refractive_index;
+      const Real root = 1 - r*r * (1 - c*c);
+                     //V + (r*c +- sqrt(1 - r*r * (1 - c*c))*N )
+      const Vector3 vr(V + (r*c + ((c>0) ? -1 : 1) * sqrt(root)) * N);
+
+    }
+
+
+    // Affiche les sources de lumières avant d'appeler la fonction qui
+    // donne la couleur de fond.
+    Color background( const Ray& ray )
+    {
+      Color result = Color( 0.0, 0.0, 0.0 );
+      for ( Light* light : ptrScene->myLights )
+        {
+          Real cos_a = light->direction( ray.origin ).dot( ray.direction );
+          if ( cos_a > 0.99f )
+            {
+              Real a = acos( cos_a ) * 360.0 / M_PI / 8.0;
+              a = std::max( 1.0f - a, 0.0f );
+              result += light->color( ray.origin ) * a * a;
+            }
+        }
+      if ( ptrBackground != 0 ) result += ptrBackground->backgroundColor( ray );
+      return result;
     }
 
   };

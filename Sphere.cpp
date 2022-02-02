@@ -91,23 +91,21 @@ rt::Sphere::getMaterial( Point3 /* p */ )
 rt::Real
 rt::Sphere::rayIntersection( const Ray& ray, Point3& p )
 {
-  Vector3 co = this->center - ray.origin,
-          w = ray.direction / ray.direction.norm();
+  const Vector3 co = this->center - ray.origin,
+                w = ray.direction / ray.direction.norm();
 
-  Real wdc = w.dot(co),
-       dst2 = co.dot(co) - wdc * wdc,
-       r2 = this->radius * this->radius,
-       t1 = sqrt(dst2 - r2),
-       t2 = sqrt(dst2 + r2);
+  const Real r2 = this->radius * this->radius,
+             wdc = w.dot(co),
+             dst2 = co.dot(co) - wdc * wdc,
+             b  = sqrt(r2 - dst2),
+             t1 = (wdc - b),
+             t2 = (wdc + b);
 
   if(( dst2 > r2 ) || (t1 < 0 && t2 < 0))
-    return 1;
+    return 1.0f;
 
-  if( t1 > 0 && t2 > 0 )
-    p = ray.origin - w * std::min(t1, t2);
-
-  else
-    p = ray.origin + w * (t1 < 0 ? t2 : t1 );
+  p = ray.origin + w * ((t1 > 0 && t2 > 0) ? std::min(t1, t2)
+                                           : ((t1 > 0) ? t1 : t2 ));
 
   return -1.0f;
 }
