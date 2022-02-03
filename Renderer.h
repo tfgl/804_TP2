@@ -140,23 +140,28 @@ namespace rt {
         const Color c_refl = trace(ray_refl);
         result += c_refl * m.specular * m.coef_reflexion;
       }
+    
+      if( ray.depth > 0 && m.coef_refraction ) {
+        const Ray ray_refr = refractionRay(ray, p_i, obj_i->getNormal(p_i), m);
+              Color c_refr = trace(ray_refr);
+        result += c_refr * m.diffuse * m.coef_refraction;
+      }
 
-      return result + m.ambient + illumination(ray,obj_i,p_i);
+      return result + m.ambient + illumination(ray,obj_i,p_i) * ((ray.depth != 0) ? m.coef_diffusion : 1);
     }
 
     Color illumination( const Ray& ray, GraphicalObject* obj, Point3 p )
     {
-      const Material& m = obj->getMaterial(p);
-            Color     c = Color(0, 0, 0);
-
+      Color c = Color(0, 0, 0);
       for(const auto& l: this->ptrScene->myLights) {
-          const Color&   b     = l->color(p);
-          const Vector3& l_dir = l->direction(p);
-          const Vector3& norm  = obj->getNormal(p);
-          const Real     kd    = std::max( norm.dot(l_dir) / (l_dir.norm() * norm.norm()), 0.f );
-          const Vector3& w     = reflect(ray.direction, norm);
-          const Real     cosB  = std::max( w.dot(l_dir) / (l_dir.norm() * w.norm()), 0.f );
-          const Real     ks    = std::pow(cosB, m.shinyness);
+          const Material& m     = obj->getMaterial(p);
+          const Color&    b     = l->color(p);
+          const Vector3&  l_dir = l->direction(p);
+          const Vector3&  norm  = obj->getNormal(p);
+          const Real      kd    = std::max( norm.dot(l_dir) / (l_dir.norm() * norm.norm()), 0.f );
+          const Vector3&  w     = reflect(ray.direction, norm);
+          const Real      cosB  = std::max( w.dot(l_dir) / (l_dir.norm() * w.norm()), 0.f );
+          const Real      ks    = std::pow(cosB, m.shinyness);
 
           c +=(kd * m.diffuse * b)
             + (ks * m.specular * b);
@@ -201,9 +206,11 @@ namespace rt {
       const Real r = (c < 0) ? m.in_refractive_index / m.out_refractive_index
                              : m.out_refractive_index / m.in_refractive_index;
       const Real root = 1 - r*r * (1 - c*c);
-                     //V + (r*c +- sqrt(1 - r*r * (1 - c*c))*N )
-      const Vector3 vr(V + (r*c + ((c>0) ? -1 : 1) * sqrt(root)) * N);
+            Vector3 vr = Vector3(r*V + (r*c + ((c>0) ? -1 : 1) * sqrt(root)) * N);
+                     //r*V + (r*c +- sqrt(1 - r*r * (1 - c*c))*N )
+      if( root < 0 ) vr = reflect(V, N);
 
+      return Ray(p + vr * 0.01f, vr, aRay.depth - 1);
     }
 
 

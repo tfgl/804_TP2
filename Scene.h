@@ -9,7 +9,9 @@
 #include <cassert>
 #include <vector>
 #include "GraphicalObject.h"
+#include "PointLight.h"
 #include "Light.h"
+#include "Sphere.h"
 
 /// Namespace RayTracer
 namespace rt {
@@ -28,6 +30,8 @@ namespace rt {
     std::vector< Light* > myLights;
     /// The list of objects modelled as a vector.
     std::vector< GraphicalObject* > myObjects;
+    /// The name of the file describing the scene if loaded from a file
+    std::string filename;
 
     /// Default constructor. Nothing to do.
     Scene() {}
@@ -93,6 +97,58 @@ namespace rt {
       }
 
       return contact ? -1 : 1;
+    }
+
+    void loadFromFile(const std::string filename)
+    {
+      auto mats = Material::loadMaterials("materials");
+      std::ifstream input( filename );
+      this->filename = filename;
+
+      for(std::string line; getline(input, line); ) {
+        if( line.empty() || line.at(0) == '#' ) continue;
+        std::stringstream s(line);
+        std::string shape;
+        s >> shape;
+
+        if( shape == "sphere" ) {
+          std::string matName;
+          float rayon, x, y, z;
+          s >> x >> y >> z >> rayon >> matName;
+          this->addObject(new Sphere( Point3(x, y, z), rayon, mats[matName] ));
+        }
+        else if( shape == "bulle" ) {
+          std::string matName;
+          float rayon, x, y, z;
+          s >> x >> y >> z >> rayon >> matName;
+          this->addBubble( Point3(x, y, z), rayon, mats[matName] );
+        }
+        else if( shape == "light" ) {
+          float x, y, z;
+          s >> x >> y >> z;
+          this->addLight( new PointLight( GL_LIGHT1, Point4(x, y, z, 1 ), Color( 1.0, 1.0, 1.0 ) ));
+        }
+      }
+
+      input.close();
+    }
+
+    void reload() {
+      if( this->filename.empty() ) return;
+      std::cout << "reloading" << std::endl;
+      this->myObjects.clear();
+      this->myLights.clear();
+      this->loadFromFile(this->filename);
+    }
+
+    void addBubble( Point3 c, Real r, Material transp_m )
+    {
+      Material revert_m = transp_m;
+      std::swap( revert_m.in_refractive_index, revert_m.out_refractive_index );
+      Sphere* sphere_out = new Sphere( c, r, transp_m );
+      Sphere* sphere_in  = new Sphere( c, r-0.02f, revert_m );
+      this->addObject( sphere_out );
+      this->addObject( sphere_in );
     }
 
   private:

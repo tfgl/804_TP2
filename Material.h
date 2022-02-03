@@ -6,6 +6,11 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <unordered_map>
+
 #include "Color.h"
 
 // @see http://devernay.free.fr/cours/opengl/materials.html
@@ -139,6 +144,38 @@ namespace rt {
       m.in_refractive_index  = 1.5f;
       m.out_refractive_index = 1.0f;
       return m;
+    }
+
+    static std::unordered_map<std::string, Material> loadMaterials(const std::string& filename)
+    { 
+      std::ifstream input( filename );
+      std::unordered_map<std::string, Material> materials;
+
+      for(std::string line; getline(input, line); ) {
+        if( line.empty() || line.at(0) == '#' ) continue;
+        Material m;
+        std::stringstream s(line);
+        std::string name;
+        s >> name;
+
+        std::getline(input, line); s = std::stringstream(line);
+        s >> m.ambient.r() >> m.ambient.g() >> m.ambient.b();
+
+        std::getline(input, line); s = std::stringstream(line);
+        s >> m.diffuse.r() >> m.diffuse.g() >> m.diffuse.b();
+
+        std::getline(input, line); s = std::stringstream(line);
+        s >> m.specular.r() >> m.specular.g() >> m.specular.b();
+
+        std::getline(input, line); s = std::stringstream(line);
+        s >> m.shinyness >> m.coef_diffusion >> m.coef_reflexion
+          >> m.coef_refraction >> m.in_refractive_index >> m.out_refractive_index;
+
+        materials.insert(std::pair<std::string, Material>(name, m));
+      }
+
+      input.close();
+      return materials;
     }
   };
 

@@ -12,9 +12,12 @@
 using namespace std;
 using namespace rt;
 
+void addBubble( Scene& scene, Point3 c, Real r, Material transp_m );
 void prgm0(Scene& scene);
 void prgm1(Scene& scene);
 void prgm2(Scene& scene);
+void prgm3(Scene& scene);
+void prgm4(Scene& scene);
 
 int main(int argc, char** argv)
 {
@@ -24,7 +27,12 @@ int main(int argc, char** argv)
   // Creates a 3D scene
   Scene scene;
 
-  prgm2(scene);
+  if( argc > 2 ) {
+    Material::loadMaterials(argv[2]);
+    scene.loadFromFile(argv[1]);
+  } else {
+    prgm3(scene);
+  }
   
   // Instantiate the viewer.
   Viewer viewer;
@@ -39,6 +47,17 @@ int main(int argc, char** argv)
   // Run main loop.
   application.exec();
   return 0;
+}
+
+void prgm4(Scene& scene)
+{
+  scene.loadFromFile( "scene1" );
+}
+
+void prgm3(Scene& scene)
+{
+  addBubble( scene, Point3( -5, 4, -1 ), 2.0, Material::glass() );
+  prgm2(scene);
 }
 
 void prgm2(Scene& scene)
@@ -95,3 +114,15 @@ void prgm0(Scene& scene)
   scene.addObject( sphere1 );
   scene.addObject( sphere2 );
 }
+
+
+void addBubble( Scene& scene, Point3 c, Real r, Material transp_m )
+{
+  Material revert_m = transp_m;
+  std::swap( revert_m.in_refractive_index, revert_m.out_refractive_index );
+  Sphere* sphere_out = new Sphere( c, r, transp_m );
+  Sphere* sphere_in  = new Sphere( c, r-0.02f, revert_m );
+  scene.addObject( sphere_out );
+  scene.addObject( sphere_in );
+}
+

@@ -1,22 +1,22 @@
 <!DOCTYPE QGLVIEWER>
 <QGLViewer version="2.7.2">
   <State stereo="false">
-    <foregroundColor blue="180" green="180" red="180"/>
-    <backgroundColor blue="51" green="51" red="51"/>
+    <foregroundColor blue="180" red="180" green="180"/>
+    <backgroundColor blue="51" red="51" green="51"/>
   </State>
   <Display axisIsDrawn="true" gridIsDrawn="false" FPSIsDisplayed="false" cameraIsEdited="false"/>
-  <Geometry width="634" posY="338" height="1040" posX="292" fullScreen="false"/>
+  <Geometry fullScreen="false" posX="292" posY="338" height="1040" width="952"/>
   <Camera>
-    <Parameters orthoCoef="3.7005e-70" sceneRadius="20.7846" Type="PERSPECTIVE" fieldOfView="0.785398" zNearCoefficient="0.005" zClippingCoefficient="1.73205">
-      <SceneCenter x="0" z="10" y="0"/>
+    <Parameters zClippingCoefficient="1.73205" sceneRadius="20.7846" fieldOfView="0.785398" orthoCoef="2.47085e-96" zNearCoefficient="0.005" Type="PERSPECTIVE">
+      <SceneCenter x="0" y="0" z="10"/>
     </Parameters>
-    <Stereo IODist="0.062" physScreenWidth="0.5" focusDistance="50.1785"/>
+    <Stereo focusDistance="50.1785" physScreenWidth="0.5" IODist="0.062"/>
     <ManipulatedCameraFrame>
-      <position x="-16.7949" z="-6.70883" y="-2.09757"/>
-      <orientation q3="-0.575403" q0="-0.357559" q2="0.186583" q1="0.711512"/>
-      <ManipulatedParameters zoomSens="1" wheelSens="1" transSens="1" rotSens="1" spinSens="0.3"/>
-      <ManipulatedCameraParameters zoomsOnPivotPoint="false" flySpeed="0.207846" rotatesAroundUpVector="false">
-        <sceneUpVector x="-0.261419" z="0.925668" y="0.273494"/>
+      <position x="39.1106" y="49.0598" z="10.1318"/>
+      <orientation q0="-0.235737" q1="-0.65637" q3="-0.250588" q2="-0.671426"/>
+      <ManipulatedParameters wheelSens="1" zoomSens="1" rotSens="1" transSens="1" spinSens="0.3"/>
+      <ManipulatedCameraParameters flySpeed="0.207846" zoomsOnPivotPoint="false" rotatesAroundUpVector="false">
+        <sceneUpVector x="-0.261419" y="0.273494" z="0.925668"/>
       </ManipulatedCameraParameters>
     </ManipulatedCameraFrame>
   </Camera>

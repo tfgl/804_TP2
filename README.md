@@ -7,7 +7,15 @@
     - [X] 3.5 - Couleurs spéculaires
     - [X] 3.6 - Un fond moins triste
 
-  - [ ] 4 - Ombres, réflexions, réfractions
+  - [X] 4 - Ombres, réflexions, réfractions
     - [X] 4.1 - Ombres portées
     - [X] 4.2 - Réflexions
-    - [ ] 4.3 - Réfractions
+    - [X] 4.3 - Réfractions
+    - [X] 4.4 - De l'influence de la profondeur de réflexion / réfraction
+    - [X] 4.5 - Il est temps de jouer !
+
+# Utilisation du programme:
+##### programme par default
+  ./ray-tracer
+##### pour jouer une scene depuis un fichier
+  ./ray-tracer <scene> <material>

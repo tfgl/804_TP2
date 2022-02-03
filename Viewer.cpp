@@ -36,9 +36,10 @@ rt::Viewer::init()
   setKeyDescription(Qt::CTRL+Qt::Key_R, "Renders the scene with a ray-tracer (high resolution)");
   setKeyDescription(Qt::Key_D, "Augments the max depth of ray-tracing algorithm");
   setKeyDescription(Qt::SHIFT+Qt::Key_D, "Decreases the max depth of ray-tracing algorithm");
+  setKeyDescription(Qt::Key_L, "Reload the scene");
   
   // Opens help window
-  help();
+  // help();
 
   // To move lights around
   setMouseTracking(true);
@@ -91,6 +92,11 @@ rt::Viewer::keyPressEvent(QKeyEvent *e)
       if ( modifiers == Qt::NoModifier )
         { maxDepth = std::min( 20, maxDepth + 1 ); handled = true; }
       std::cout << "Max depth is " << maxDepth << std::endl; 
+    }
+  if (e->key()==Qt::Key_L)
+    {
+      this->ptrScene->reload();
+      this->update();
     }
     
   if (!handled) QGLViewer::keyPressEvent(e);
