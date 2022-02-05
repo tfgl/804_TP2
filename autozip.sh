@@ -1,3 +1,3 @@
 #!/bin/sh
 
-tar cfz tp2.tar.gz *.cpp *.h README Makefile ray-tracer.pro rendu scene1 materials
+tar cfz tp2.tar.gz *.cpp *.h README.md Makefile ray-tracer.pro rendu/*.jgep scene1 materials
