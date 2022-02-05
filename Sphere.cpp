@@ -92,14 +92,14 @@ rt::Real
 rt::Sphere::rayIntersection( const Ray& ray, Point3& p )
 {
   const Vector3 co = this->center - ray.origin,
-                w = ray.direction / ray.direction.norm();
+                w  = ray.direction / ray.direction.norm();
 
-  const Real r2 = this->radius * this->radius,
-             wdc = w.dot(co),
+  const Real r2   = this->radius * this->radius,
+             wdc  = w.dot(co),
              dst2 = co.dot(co) - wdc * wdc,
-             b  = sqrt(r2 - dst2),
-             t1 = (wdc - b),
-             t2 = (wdc + b);
+             b    = sqrt(r2 - dst2),
+             t1   = (wdc - b),
+             t2   = (wdc + b);
 
   if(( dst2 > r2 ) || (t1 < 0 && t2 < 0))
     return 1.0f;

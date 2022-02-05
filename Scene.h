@@ -12,6 +12,7 @@
 #include "PointLight.h"
 #include "Light.h"
 #include "Sphere.h"
+#include "Plan.h"
 
 /// Namespace RayTracer
 namespace rt {
@@ -31,7 +32,7 @@ namespace rt {
     /// The list of objects modelled as a vector.
     std::vector< GraphicalObject* > myObjects;
     /// The name of the file describing the scene if loaded from a file
-    std::string filename;
+    std::string filename, materialsFilename;
 
     /// Default constructor. Nothing to do.
     Scene() {}
@@ -99,11 +100,12 @@ namespace rt {
       return contact ? -1 : 1;
     }
 
-    void loadFromFile(const std::string filename)
+    void loadFromFile(const std::string filename, const std::string materialsFilename )
     {
-      auto mats = Material::loadMaterials("materials");
+      auto mats = Material::loadMaterials(materialsFilename);
       std::ifstream input( filename );
       this->filename = filename;
+      this->materialsFilename = materialsFilename;
 
       for(std::string line; getline(input, line); ) {
         if( line.empty() || line.at(0) == '#' ) continue;
@@ -128,6 +130,13 @@ namespace rt {
           s >> x >> y >> z;
           this->addLight( new PointLight( GL_LIGHT1, Point4(x, y, z, 1 ), Color( 1.0, 1.0, 1.0 ) ));
         }
+        else if( shape == "plan" ) {
+          Point3 u, v, w;
+          std::string main_m, band_m;
+          Real width;
+          s >> u >> v >> w >> main_m >> band_m >> width;
+          this->addObject( new PeriodicPlane(u, v, w, mats[main_m], mats[band_m], width));
+        }
       }
 
       input.close();
@@ -138,7 +147,7 @@ namespace rt {
       std::cout << "reloading" << std::endl;
       this->myObjects.clear();
       this->myLights.clear();
-      this->loadFromFile(this->filename);
+      this->loadFromFile(this->filename, this->materialsFilename);
     }
 
     void addBubble( Point3 c, Real r, Material transp_m )

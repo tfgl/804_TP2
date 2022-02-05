@@ -8,6 +8,7 @@
 #include "Sphere.h"
 #include "Material.h"
 #include "PointLight.h"
+#include "Plan.h"
 
 using namespace std;
 using namespace rt;
@@ -28,8 +29,7 @@ int main(int argc, char** argv)
   Scene scene;
 
   if( argc > 2 ) {
-    Material::loadMaterials(argv[2]);
-    scene.loadFromFile(argv[1]);
+    scene.loadFromFile(argv[1], argv[2]);
   } else {
     prgm3(scene);
   }
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
 void prgm4(Scene& scene)
 {
-  scene.loadFromFile( "scene1" );
+  scene.loadFromFile( "scene1", "materials" );
 }
 
 void prgm3(Scene& scene)

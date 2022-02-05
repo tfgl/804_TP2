@@ -1,3 +1,22 @@
 # type  x   y   z  rayon material
-sphere  6   6   8    2   emerald
-light   8   8   18
+light   0   0   18
+#light   16 -16  18
+#light  -16  16  18
+
+bulle  3   1   1    1   glass
+bulle  4   -6   5    1   glass
+bulle  -2   2   2    1   glass
+bulle  5   3   5    1   glass
+
+#sphere  0   8   8    6   emerald
+#sphere  8   0   8    6   emerald
+#sphere  0   0   8    8   bronze
+
+sphere  0   4   1    1   bronze
+sphere  -2   3   1    1   bronze
+sphere  2   -3   1    1   redPlastic
+sphere  3   0   1    1   greenPlastic
+sphere  0   0   2    2   shinyMetal
+
+plan    0 0 0   5 0 0   0 5 0    whitePlastic black 0.05
+#plan    0 0 0   5 0 0   0 5 0   eau eau 0.05

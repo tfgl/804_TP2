@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cmath>
 #include <array>
+#include <iostream>
 
 /// Namespace RayTracer
 namespace rt {
@@ -212,6 +213,14 @@ namespace rt {
   typedef PointVector< Real, 3 > Point3;
   typedef PointVector< Real, 4 > Vector4;
   typedef PointVector< Real, 4 > Point4;
+
+  template <typename T, std::size_t N>
+  std::istream& operator>>(std::istream& in, PointVector<T, N>& v)
+  {
+    typedef typename PointVector<T,N>::Size Size;
+    for ( Size i = 0; i < N; ++i ) in >> v.at(i);
+    return in;
+  }
 
 } // namespace rt
 
